@@ -15,7 +15,7 @@ export function getEligibleGames(xs,n){n=Number(n);return Number.isInteger(n)&&n
 export function pickRandom(xs,n,rng=Math.random){const a=getEligibleGames(xs,n);if(!a.length)return null;const r=Number(rng());return a[Math.min(a.length-1,Math.max(0,Math.floor((Number.isFinite(r)?r:0)*a.length)))]}
 export function collectTags(xs){return [...new Set(xs.flatMap(x=>x.tags))].sort()}
 export function isGame(x){return !!x&&typeof x.id==='string'&&!!x.id&&typeof x.name==='string'&&validateGame(x).length===0&&Array.isArray(x.tags)&&normalizeTags(x.tags).length===x.tags.length&&x.tags.every(t=>typeof t==='string'&&t.length<=24)&&Number.isFinite(x.createdAt)&&x.createdAt>0&&Number.isFinite(x.updatedAt)&&x.updatedAt>0}
-export function validState(x){return !!x&&x.version===1&&Array.isArray(x.games)&&x.games.every(isGame)}
+export function validState(x){if(!x||x.version!==1||!Array.isArray(x.games)||!x.games.every(isGame))return false;const ids=x.games.map(g=>g.id);return new Set(ids).size===ids.length}
 export const emptyState=()=>({version:1,games:[]});
 export const stateError=error=>({ok:false,error,games:[],version:1});
 export const statusesList=['want','played'];
