@@ -1,0 +1,4 @@
+export const $=s=>document.querySelector(s);
+export function text(tag,value,cls=''){const e=document.createElement(tag);e.textContent=value;if(cls)e.className=cls;return e}
+export function renderGames(root,games,onAction){root.replaceChildren(...games.map(g=>{const c=text('article','', 'card');c.dataset.id=g.id;c.append(text('h3',g.name),text('p',`${g.minPlayers}–${g.maxPlayers} players · ${g.playMinutes} min · ${g.rating} of 5 stars`),text('p',g.tags.join(' · ')||'No tags'),text('strong',g.status==='want'?'Want to play':'Played'));const b=text('div','');const e=text('button','Edit');e.type='button';e.onclick=()=>onAction('edit',g);const d=text('button','Delete');d.type='button';d.onclick=()=>onAction('delete',g);const s=text('button',g.status==='want'?'Mark played':'Want to play');s.type='button';s.onclick=()=>onAction('status',g);b.append(e,s,d);c.append(b);return c}))}
+export function formData(form){return Object.fromEntries(new FormData(form))}
