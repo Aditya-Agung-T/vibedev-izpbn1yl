@@ -11,4 +11,9 @@ test('picker excludes played and incompatible games and supports deterministic r
 test('malformed JSON and invalid schema are recoverable',()=>{assert.equal(loadState({getItem:()=>'{bad'}).ok,false);assert.equal(loadState({getItem:()=>JSON.stringify({version:1,games:[{id:'x'}]})}).ok,false);assert.equal(validState({version:1,games:[]}),true)});
 test('save/load round trip and reset work',()=>{const m={data:null,getItem(){return this.data},setItem(k,v){this.data=v},removeItem(){this.data=null}};assert.equal(saveState(m,{games:[]}).ok,true);assert.deepEqual(loadState(m).games,[]);assert.equal(resetState(m).ok,true);assert.equal(loadState(m).games.length,0)});
 test('storage write failure is visible',()=>{const m={setItem(){throw Error('quota')}};assert.equal(saveState(m,{games:[]}).ok,false)});
+test('blank name fails validation',()=>assert.ok(validateGame({...base,name:' '}).includes('Name is required')));
+test('range invariant rejects max below min',()=>assert.ok(validateGame({...base,minPlayers:6,maxPlayers:4}).some(x=>x.includes('Maximum'))));
+test('rating bounds reject out-of-range values',()=>{assert.ok(validateGame({...base,rating:0}).some(x=>x.includes('Rating')));assert.ok(validateGame({...base,rating:6}).some(x=>x.includes('Rating')))});
+test('played games are never eligible',()=>{const played=normalizeGame({...base,status:'played'},'played');assert.deepEqual(getEligibleGames([played],4),[])});
+test('zero-candidate picker returns null without mutation',()=>{const games=[normalizeGame(base,'a')];assert.equal(pickRandom(games,99),null);assert.equal(games.length,1)});
 // Required browser-flow logic remains pure and directly tested through the model API.
